@@ -1,0 +1,51 @@
+services:
+  php:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: php:8_4_fpm_alpine_custom
+    container_name: container_php_openswoole
+    ports:
+      - "9501:9501"
+    depends_on:
+      - database
+    networks:
+      network_php_openswoole:
+        ipv4_address: 172.16.0.11
+
+  database:
+    image: postgres:14.18
+    container_name: container_postgresql
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+    networks:
+      network_php_openswoole:
+        ipv4_address: 172.16.0.12
+
+  adminer:
+    image: adminer:5-standalone
+    container_name: container_adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+    networks:
+      network_php_openswoole:
+        ipv4_address: 172.16.0.13
+
+networks:
+  network_php_openswoole:
+    name: global_php_openswoole
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.0.0/24
