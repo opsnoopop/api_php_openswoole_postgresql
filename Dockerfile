@@ -16,7 +16,7 @@ RUN apk add --no-cache \
     mariadb-connector-c-dev\
     libpq-dev
 
-# ติดตั้ง PDO MySQL
+# ติดตั้ง PDO PostgreSQL
 RUN docker-php-ext-install pdo pdo_pgsql
 
 # เปิดใช้งาน OPcache พร้อม JIT

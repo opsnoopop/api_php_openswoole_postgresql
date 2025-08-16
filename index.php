@@ -18,7 +18,7 @@ $objServer->on("request", function (Request $objRequest, Response $objResponse) 
         // Health Check
         $objResponse->status(200);
         $objResponse->end(json_encode([
-            "message" => "Hello World from PHP openswoole"
+            "message" => "Hello World from PHP"
         ]));
 
     } else if ($strRequestUri === '/users' && $strRequestMethod === 'POST') {
