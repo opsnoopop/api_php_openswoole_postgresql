@@ -13,7 +13,7 @@ A simple PHP openswoole API application and PostgreSQL, containerized with Docke
 - opcache
 - openswoole: 25.2.0
 
-**PostgreSQL Container: FROM postgres:14.18**
+**PostgreSQL Container: FROM postgres:17.5**
 - OS Debian GNU/Linux 12 (bookworm): 12
 - PostgreSQL: 17.5
 
