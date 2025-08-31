@@ -260,13 +260,13 @@ docker run \
 ### Truncate table users
 ```bash
 docker exec -i container_postgresql sh -c "PGPASSWORD='testpass' psql -U testuser -d testdb -c '
-Truncate testdb.users;"
+Truncate public.users RESTART IDENTITY;'"
 ```
 
 ### Delete table users
 ```bash
 docker exec -i container_postgresql sh -c "PGPASSWORD='testpass' psql -U testuser -d testdb -c '
-DELETE FROM testdb.users;"
+DELETE FROM public.users;'"
 ```
 
 ### Stop the Application

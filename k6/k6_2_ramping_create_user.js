@@ -1,6 +1,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
-import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+// import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+import { htmlReport } from "./bundle.js";
 
 // Test configuration
 export const options = {
@@ -11,7 +12,7 @@ export const options = {
       timeUnit: '1s', // หน่วยเวลาของ rate: ต่อ 1 วินาที
       startRate: 1000, // เริ่มต้นด้วย 1000 คนที่ทำงานพร้อมกัน
       preAllocatedVUs: 5000, // สร้าง Virtual Users (VU) ล่วงหน้า 5000 ตัว
-      maxVUs: 10000, // สร้าง Virtual Users (VU) สูงสุด 20000 ตัว
+      maxVUs: 10000, // สร้าง Virtual Users (VU) สูงสุด 10000 ตัว
       stages: [
         { duration: '10s', target: 2000 },
         { duration: '10s', target: 4000 },
@@ -23,15 +24,6 @@ export const options = {
       gracefulStop: '10s',
     },
   },
-  // scenarios: {
-  //   constant: {
-  //     executor: 'constant-arrival-rate', // ใช้ executor แบบ constant-arrival-rate: ยิง request ด้วยความเร็วคงที่
-  //     duration: '1m', // ระยะเวลาทดสอบ: 1 นาที
-  //     rate: 10000, // อัตราการยิง request: 84 requests/วินาที อาจจะต้องหา Magic Number สำหรับทดสอบ
-  //     timeUnit: '1s', // หน่วยเวลาของ rate: ต่อ 1 วินาที
-  //     preAllocatedVUs: 10000, // สร้าง Virtual Users (VU) ล่วงหน้า
-  //   },
-  // },
   thresholds: {
     http_req_failed: [{ threshold: 'rate<0.01', abortOnFail: true }], // หยุดทันทีเมื่อ fail (ประหยัดเวลา/ทรัพยากร) ใส่ abortOnFail
     http_req_duration: [
@@ -50,11 +42,15 @@ const headers = {
 
 // Simulated user behavior
 export default function () {
-  // GET
-  let res = http.get("http://container_php:9501");
+  // POST
+  let body = {
+    "username":"optest",
+    "email":"opsnoopop@hotmail.com"
+  };
+  let res = http.post("http://container_php:9501/users", JSON.stringify(body), headers);
 
   // Validate response status
-  check(res, { "status was 200": (r) => r.status == 200 });
+  check(res, { "status was 201": (r) => r.status == 201 });
 
   sleep(1);
 }
@@ -72,11 +68,11 @@ export function handleSummary(data) {
   const minutes = (utcPlus7.getUTCMinutes() < 10) ? "0" + utcPlus7.getUTCMinutes() : utcPlus7.getUTCMinutes();
   const seconds = (utcPlus7.getUTCSeconds() < 10) ? "0" + utcPlus7.getUTCSeconds() : utcPlus7.getUTCSeconds();
 
-  const filename = "/k6/1_health_check_" + year +  month + day + "_" + hours + minutes + seconds + ".html";
+  const filename = "/k6/2_ramping_create_user_" + year +  month + day + "_" + hours + minutes + seconds + ".html";
   
   return {
     [filename]: htmlReport(data, {
-      title: "health_check_api_php_openswoole_postgresql_" + year + month + day + "_" + hours + minutes + seconds
+      title: "2_ramping_create_user_api_php_openswoole_postgresql_" + year + month + day + "_" + hours + minutes + seconds
     }),
   };
 }

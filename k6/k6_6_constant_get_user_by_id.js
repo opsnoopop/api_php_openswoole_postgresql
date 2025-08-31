@@ -1,37 +1,20 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
-import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+// import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+import { htmlReport } from "./bundle.js";
 
 // Test configuration
 export const options = {
   discardResponseBodies: true, // ไม่เก็บ response body เพื่อประหยัดหน่วยความจำและประมวลผลได้เร็วขึ้น
   scenarios: {
-    ramping: {
-      executor: 'ramping-arrival-rate', // ใช้ executor แบบ ramping-arrival-rate: ยิง request ด้วยความเร็วที่เพิ่มขึ้นอย่างต่อเนื่อง
+    constant: {
+      executor: 'constant-arrival-rate', // ใช้ executor แบบ constant-arrival-rate: ยิง request ด้วยความเร็วคงที่
+      duration: '1m', // ระยะเวลาทดสอบ: 1 นาที
+      rate: 10000, // อัตราการยิง request: 84 requests/วินาที อาจจะต้องหา Magic Number สำหรับทดสอบ
       timeUnit: '1s', // หน่วยเวลาของ rate: ต่อ 1 วินาที
-      startRate: 1000, // เริ่มต้นด้วย 1000 คนที่ทำงานพร้อมกัน
-      preAllocatedVUs: 5000, // สร้าง Virtual Users (VU) ล่วงหน้า 5000 ตัว
-      maxVUs: 10000, // สร้าง Virtual Users (VU) สูงสุด 20000 ตัว
-      stages: [
-        { duration: '10s', target: 2000 },
-        { duration: '10s', target: 4000 },
-        { duration: '10s', target: 6000 },
-        { duration: '10s', target: 8000 },
-        { duration: '10s', target: 10000 },
-        { duration: '10s', target: 0 },    // ramp-down
-      ],
-      gracefulStop: '10s',
+      preAllocatedVUs: 10000, // สร้าง Virtual Users (VU) ล่วงหน้า
     },
   },
-  // scenarios: {
-  //   constant: {
-  //     executor: 'constant-arrival-rate', // ใช้ executor แบบ constant-arrival-rate: ยิง request ด้วยความเร็วคงที่
-  //     duration: '1m', // ระยะเวลาทดสอบ: 1 นาที
-  //     rate: 4000, // อัตราการยิง request: 84 requests/วินาที อาจจะต้องหา Magic Number สำหรับทดสอบ
-  //     timeUnit: '1s', // หน่วยเวลาของ rate: ต่อ 1 วินาที
-  //     preAllocatedVUs: 10000, // สร้าง Virtual Users (VU) ล่วงหน้า
-  //   },
-  // },
   thresholds: {
     http_req_failed: [{ threshold: 'rate<0.01', abortOnFail: true }], // หยุดทันทีเมื่อ fail (ประหยัดเวลา/ทรัพยากร) ใส่ abortOnFail
     http_req_duration: [
@@ -72,11 +55,11 @@ export function handleSummary(data) {
   const minutes = (utcPlus7.getUTCMinutes() < 10) ? "0" + utcPlus7.getUTCMinutes() : utcPlus7.getUTCMinutes();
   const seconds = (utcPlus7.getUTCSeconds() < 10) ? "0" + utcPlus7.getUTCSeconds() : utcPlus7.getUTCSeconds();
 
-  const filename = "/k6/3_get_user_by_id_" + year +  month + day + "_" + hours + minutes + seconds + ".html";
+  const filename = "/k6/6_constant_get_user_by_id_" + year +  month + day + "_" + hours + minutes + seconds + ".html";
   
   return {
     [filename]: htmlReport(data, {
-      title: "get_user_by_id_api_php_openswoole_postgresql_" + year + month + day + "_" + hours + minutes + seconds
+      title: "6_constant_get_user_by_id_api_php_openswoole_postgresql_" + year + month + day + "_" + hours + minutes + seconds
     }),
   };
 }
