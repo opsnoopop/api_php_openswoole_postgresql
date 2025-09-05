@@ -1,5 +1,5 @@
 services:
-  php:
+  api:
     build:
       context: ./
       dockerfile: Dockerfile
@@ -9,9 +9,10 @@ services:
     ports:
       - "80:9501"
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     networks:
-      network_php:
+      network_optest:
         ipv4_address: 172.16.0.11
 
   database:
@@ -33,7 +34,7 @@ services:
       timeout: 3s
       retries: 30
     networks:
-      network_php:
+      network_optest:
         ipv4_address: 172.16.0.12
 
   adminer:
@@ -45,12 +46,12 @@ services:
     depends_on:
       - database
     networks:
-      network_php:
+      network_optest:
         ipv4_address: 172.16.0.13
 
 networks:
-  network_php:
-    name: global_php
+  network_optest:
+    name: global_optest
     ipam:
       driver: default
       config:
